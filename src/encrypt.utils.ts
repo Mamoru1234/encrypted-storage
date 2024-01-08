@@ -1,6 +1,6 @@
-import { scrypt, createCipheriv, Cipher, Decipher, createDecipheriv, randomBytes } from 'crypto';
+import { scrypt, createCipheriv, Decipher, createDecipheriv } from 'crypto';
 import { pipeline } from 'stream/promises';
-import { Readable, Transform } from 'stream';
+import { Transform } from 'stream';
 import { basename, dirname, join } from 'path';
 import { createReadStream, createWriteStream, existsSync } from 'fs';
 import { readMaterial } from './crypto-material.utils';

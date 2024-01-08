@@ -1,8 +1,8 @@
 import { createCommand } from 'commander';
-import { createCipher, decryptFile, encryptFile } from './encrypt.utils';
-import { generateMaterial, readMaterial } from './crypto-material.utils';
+import { decryptFile, encryptFile } from './encrypt.utils';
+import { generateMaterial } from './crypto-material.utils';
 
-const program = createCommand('encrypted-fs');
+const program = createCommand('encrypted-fs').version('1.0.0');
 
 program
   .command('encrypt <from>')

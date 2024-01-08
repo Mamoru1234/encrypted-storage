@@ -1,6 +1,6 @@
-import { randomBytes } from "crypto";
-import { existsSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
+import { randomBytes } from 'crypto';
+import { existsSync } from 'fs';
+import { readFile, writeFile } from 'fs/promises';
 
 const MATERIAL_PATH = './material.mcrt';
 const SALT_SIZE = 32;
