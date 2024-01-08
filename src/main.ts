@@ -1,16 +1,23 @@
 import { createCommand } from 'commander';
 import { decryptFile, encryptFile } from './encrypt.utils';
 import { generateMaterial } from './crypto-material.utils';
+import { readLine } from './read-line-utils';
 
 const program = createCommand('encrypted-fs').version('1.0.0');
 
 program
   .command('encrypt <from>')
-  .action((from) => encryptFile(from, 'test'));
+  .action(async (from) => {
+    const password = await readLine('Your password: ');
+    await encryptFile(from, password);
+  });
 
 program
   .command('decrypt <from>')
-  .action((from) => decryptFile(from, 'test'));
+  .action(async (from) => {
+    const password = await readLine('Your password: ');
+    await decryptFile(from, password);
+  });
 
 program
   .command('generate')
