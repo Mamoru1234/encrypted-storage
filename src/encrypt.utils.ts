@@ -4,7 +4,11 @@ import { Transform } from 'stream';
 import { basename, dirname, join } from 'path';
 import { createReadStream, createWriteStream, existsSync } from 'fs';
 import { readMaterial } from './crypto-material.utils';
-import { copyFile } from 'fs/promises';
+import { copyFile, mkdtemp, stat } from 'fs/promises';
+import { pathExists, remove } from 'fs-extra';
+import { tmpdir } from 'os';
+import { createArchive, extractFile } from './zip-utils';
+import { readLine } from './read-line-utils';
 
 const ALGORITHM = 'AES-256-CBC';
 const KEY_SIZE = 32;
@@ -61,4 +65,31 @@ export async function decryptFile(inputPath: string, password: string): Promise<
   const outputPath = join(baseDir, outputName);
   await backupOutput(outputPath);
   await pipeline(createReadStream(inputPath), decipher, createWriteStream(outputPath));
+}
+
+export async function encryptDir(from: string, to: string, password: string): Promise<void> {
+  const taskDir = await mkdtemp(join(tmpdir(), 'encrypted-fs'));
+  await createArchive(from, join(taskDir, 'data.zip'));
+  const cipher = await createCipher(password);
+  await pipeline(createReadStream(join(taskDir, 'data.zip')), cipher, createWriteStream(to));
+  await remove(taskDir);
+}
+
+export async function decryptDir(from: string, to: string, password: string): Promise<void> {
+  if (! await pathExists(from)) {
+    throw new Error(`Path do not exists: ${from}`);
+  }
+  const pathStat = await stat(from);
+  if (!pathStat.isFile()) {
+    throw new Error(`Path should be file: ${from}`);
+  }
+  const taskDir = await mkdtemp(join(tmpdir(), 'encrypted-fs'));
+  const decipher = await createDecipher(password);
+  await pipeline(createReadStream(from), decipher, createWriteStream(join(taskDir, 'data.zip')));
+  await extractFile(join(taskDir, 'data.zip'), to);
+  await remove(taskDir);
+  const response = await readLine('Press enter when finish review (enter keep to keep the original files)');
+  if (response !== 'keep') {
+    await remove(to);
+  }
 }
